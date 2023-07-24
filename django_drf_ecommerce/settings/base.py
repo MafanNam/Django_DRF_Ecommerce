@@ -43,6 +43,8 @@ INSTALLED_APPS = [
     'rest_framework',
 
     # Internal Apps
+    'django_drf_ecommerce.product',
+
 
 ]
 
