@@ -11,6 +11,7 @@ class ActiveQuerySet(models.QuerySet):
 
 class Category(MPTTModel):
     name = models.CharField(max_length=255, unique=True)
+    slug = models.SlugField(max_length=255)
     parent = TreeForeignKey("self", on_delete=models.PROTECT, null=True, blank=True)
     is_active = models.BooleanField(default=False)
 
@@ -58,12 +59,15 @@ class ProductLine(models.Model):
 
     objects = ActiveQuerySet.as_manager()
 
-    def clean_fields(self, exclude=None):
-        super().clean_fields(exclude=exclude)
+    def clean(self):
         qs = ProductLine.objects.filter(product=self.product)
         for obj in qs:
             if self.id != obj.id and self.order == obj.order:
                 raise ValidationError('Duplicate value.')
 
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        return super(ProductLine, self).save(*args, **kwargs)
+
     def __str__(self):
-        return str(self.price)
+        return str(self.sku)
