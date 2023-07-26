@@ -46,7 +46,7 @@ class ProductViewSet(viewsets.ViewSet):
     A simple ViewSet for viewing all brands
     """
 
-    queryset = Product.objects.all()
+    queryset = Product.objects.isActive()
     lookup_field = 'slug'
 
     def retrieve(self, request, slug=None):
