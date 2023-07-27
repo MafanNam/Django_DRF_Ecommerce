@@ -35,6 +35,7 @@ class BrandViewSet(viewsets.ViewSet):
 
     queryset = Brand.objects.all()
 
+
     @extend_schema(responses=BrandSerializer)
     def list(self, request):
         serializer = BrandSerializer(self.queryset, many=True)
@@ -51,13 +52,12 @@ class ProductViewSet(viewsets.ViewSet):
 
     def retrieve(self, request, slug=None):
         serializer = ProductSerializer(
-            Product.objects.filter(slug=slug).select_related('category', 'brand').prefetch_related(
-                Prefetch("product_line")).prefetch_related(Prefetch("product_line__product_image")),
+            Product.objects.filter(slug=slug).select_related('category', 'brand').prefetch_related(Prefetch("product_line")).prefetch_related(Prefetch("product_line__product_image")),
             many=True)
         data = Response(serializer.data)
 
-        q = list(connection.queries)
-        print(len(q))
+        # q = list(connection.queries)
+        # print(len(q))
         # for qs in q:
         #     sqlformatted = format(str(qs['sql']), reindent=True)
         #     print(highlight(sqlformatted, SqlLexer(), TerminalFormatter()))
@@ -77,3 +77,9 @@ class ProductViewSet(viewsets.ViewSet):
 
         serializer = ProductSerializer(self.queryset.filter(category__slug=slug), many=True)
         return Response(serializer.data)
+
+
+
+
+
+
