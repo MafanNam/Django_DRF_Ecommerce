@@ -64,6 +64,7 @@ class AttributeValue(models.Model):
     def __str__(self):
         return f"{self.attribute.name}-{self.att_value}"
 
+
 class ProductLine(models.Model):
     price = models.DecimalField(decimal_places=2, max_digits=5)
     sku = models.CharField(max_length=255)
@@ -71,6 +72,8 @@ class ProductLine(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='product_line')
     attribute_value = models.ManyToManyField(AttributeValue, through='ProductLineAttributeValue',
                                              related_name='product_line_attribute_value')
+    product_type = models.ForeignKey("ProductType", on_delete=models.PROTECT)
+
     order = OrderField(unique_for_filed='product', blank=True)
     is_active = models.BooleanField(default=False)
 
@@ -121,3 +124,24 @@ class ProductImage(models.Model):
 
     def __str__(self):
         return str(self.order)
+
+
+class ProductType(models.Model):
+    name = models.CharField(max_length=255)
+    attribute = models.ManyToManyField(Attribute, through='ProductTypeAttribute', related_name='product_type_attribute')
+
+    def __str__(self):
+        return self.name
+
+
+class ProductTypeAttribute(models.Model):
+    product_type = models.ForeignKey(ProductType, on_delete=models.CASCADE,
+                                     related_name='product_type_attribute_pt')
+    attribute = models.ForeignKey(Attribute, on_delete=models.CASCADE,
+                                  related_name='product_type_attribute_at')
+
+    class Meta:
+        unique_together = ('product_type', 'attribute')
+
+    # def __str__(self):
+    #     return f"{self.product_line.product}-{self.attribute_value}"
