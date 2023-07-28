@@ -41,7 +41,11 @@ class Product(models.Model):
     is_digital = models.BooleanField(default=False)
     brand = models.ForeignKey(Brand, on_delete=models.CASCADE)
     category = TreeForeignKey("Category", on_delete=models.SET_NULL, null=True, blank=True)
+    product_type = models.ForeignKey("ProductType", on_delete=models.PROTECT)
     is_active = models.BooleanField(default=False)
+
+    create_at = models.DateTimeField(auto_now_add=True)
+    update_at = models.DateTimeField(auto_now=True)
 
     objects = ActiveQuerySet.as_manager()
 
@@ -72,10 +76,11 @@ class ProductLine(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='product_line')
     attribute_value = models.ManyToManyField(AttributeValue, through='ProductLineAttributeValue',
                                              related_name='product_line_attribute_value')
-    product_type = models.ForeignKey("ProductType", on_delete=models.PROTECT)
-
     order = OrderField(unique_for_filed='product', blank=True)
     is_active = models.BooleanField(default=False)
+
+    create_at = models.DateTimeField(auto_now_add=True)
+    update_at = models.DateTimeField(auto_now=True)
 
     objects = ActiveQuerySet.as_manager()
 
@@ -107,8 +112,7 @@ class ProductLineAttributeValue(models.Model):
             product_line=self.product_line).exists()
         if not qs:
             iqs = Attribute.objects.filter(
-                attribute_value__product_line_attribute_value=self.product_line).values_list('pk',
-                                                                                                             flat=True)
+                attribute_value__product_line_attribute_value=self.product_line).values_list('pk', flat=True)
 
             if self.attribute_value.attribute.id in list(iqs):
                 raise ValidationError("Duplicate attribute exists")
@@ -116,7 +120,6 @@ class ProductLineAttributeValue(models.Model):
     def save(self, *args, **kwargs):
         self.full_clean()
         return super(ProductLineAttributeValue, self).save(*args, **kwargs)
-
 
     def __str__(self):
         return f"{self.product_line.product}-{self.attribute_value}"

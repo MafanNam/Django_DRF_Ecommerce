@@ -1,13 +1,13 @@
 import pytest
 from django.core.exceptions import ValidationError
 
+from django_drf_ecommerce.product.models import ProductTypeAttribute
+
 pytestmark = pytest.mark.django_db
 
 
 class TestCategoryModel:
     def test_str_method(self, category_factory):
-        # Arrange
-
         # Act
         obj = category_factory(name='test_category')
 
@@ -17,8 +17,6 @@ class TestCategoryModel:
 
 class TestBrandModel:
     def test_str_method(self, brand_factory):
-        # Arrange
-
         # Act
         obj = brand_factory(name='test_brand')
 
@@ -28,8 +26,6 @@ class TestBrandModel:
 
 class TestProductModel:
     def test_str_method(self, product_factory):
-        # Arrange
-
         # Act
         obj = product_factory()
 
@@ -38,11 +34,10 @@ class TestProductModel:
 
 
 class TestProductLineModel:
-    def test_str_method(self, product_line_factory):
-        # Arrange
-
+    def test_str_method(self, product_line_factory, attribute_value_factory):
         # Act
-        obj = product_line_factory(sku='12345')
+        attr = attribute_value_factory(att_value='test')
+        obj = product_line_factory.create(sku='12345', attribute_value=(attr,))
         # Assert
         assert obj.__str__() == '12345'
 
@@ -53,10 +48,39 @@ class TestProductLineModel:
             product_line_factory(order=1, product=obj).clean()
 
 
-class TestProductImage:
+class TestProductTypeModel:
+    def test_str_method(self, product_type_factory, attribute_factory):
+        # Act
+        test = attribute_factory(name='test')
+        obj = product_type_factory.create(name='test_type', attribute=(test,))
+
+        x = ProductTypeAttribute.objects.get(id=1)
+
+
+        # Assert
+        assert obj.__str__() == 'test_type'
+
+
+class TestAttributeModel:
+    def test_str_method(self, attribute_factory):
+        # Act
+        obj = attribute_factory(name='test_attribute')
+        # Assert
+        assert obj.__str__() == 'test_attribute'
+
+
+class TestAttributeValueModel:
+    def test_str_method(self, attribute_value_factory, attribute_factory):
+        # Act
+        obj_a = attribute_factory(name='test_attribute')
+        obj_b = attribute_value_factory(att_value='test_value', attribute=obj_a)
+        # Assert
+        assert obj_b.__str__() == 'test_attribute-test_value'
+
+
+class TestProductImageModel:
     def test_str_method(self, product_image_factory):
         # Act
         obj = product_image_factory(order=1)
         # Assert
         assert obj.__str__() == '1'
-

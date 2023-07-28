@@ -28,7 +28,7 @@ class ProductLineImageInLine(admin.TabularInline):
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    fields = ('name', 'is_digital', 'brand', 'category', 'is_active', 'slug')
+    list_display = ('name', 'is_digital', 'brand', 'category', 'is_active', 'slug')
     inlines = [ProductLineInLine]
 
 
