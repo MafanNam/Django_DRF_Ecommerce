@@ -37,24 +37,24 @@ class CategoryAdmin(admin.ModelAdmin):
     list_field = ('name', 'parent')
 
 
-class AttributeValueInLine(admin.TabularInline):
-    model = AttributeValue.product_line_attribute_value.through
+# class AttributeValueInLine(admin.TabularInline):
+#     model = AttributeValue.product_line_attribute_value.through
 
 
-@admin.register(ProductLine)
-class ProductLineAdmin(admin.ModelAdmin):
-    inlines = [ProductLineImageInLine, AttributeValueInLine]
+# @admin.register(ProductLine)
+# class ProductLineAdmin(admin.ModelAdmin):
+#     inlines = [ProductLineImageInLine, AttributeValueInLine]
 
 
-class AttributeInLine(admin.TabularInline):
-    model = Attribute.product_type_attribute.through
-
-
-@admin.register(ProductType)
-class ProductTypeAdmin(admin.ModelAdmin):
-    inlines = [
-        AttributeInLine,
-    ]
+# class AttributeInLine(admin.TabularInline):
+#     model = Attribute.product_type_attribute.through
+#
+#
+# @admin.register(ProductType)
+# class ProductTypeAdmin(admin.ModelAdmin):
+#     inlines = [
+#         AttributeInLine,
+#     ]
 
 
 admin.site.register(Attribute)
