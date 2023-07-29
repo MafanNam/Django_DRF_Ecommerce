@@ -11,8 +11,8 @@ from pygments.formatters import TerminalFormatter
 from pygments.lexers import SqlLexer
 from sqlparse import format
 
-from .models import Brand, Product, Category
-from .serializers import BrandSerializer, ProductSerializer, CategorySerializer
+from .models import Product, Category
+from .serializers import ProductSerializer, CategorySerializer
 
 
 class CategoryViewSet(viewsets.ViewSet):
@@ -28,25 +28,12 @@ class CategoryViewSet(viewsets.ViewSet):
         return Response(serializer.data)
 
 
-class BrandViewSet(viewsets.ViewSet):
-    """
-    A simple ViewSet for viewing all brands
-    """
-
-    queryset = Brand.objects.all()
-
-    @extend_schema(responses=BrandSerializer)
-    def list(self, request):
-        serializer = BrandSerializer(self.queryset, many=True)
-        return Response(serializer.data)
-
-
 class ProductViewSet(viewsets.ViewSet):
     """
     A simple ViewSet for viewing all brands
     """
 
-    queryset = Product.objects.isActive()
+    queryset = Product.objects.is_active()
     lookup_field = 'slug'
 
     def retrieve(self, request, slug=None):
