@@ -38,16 +38,17 @@ class ProductViewSet(viewsets.ViewSet):
 
     def retrieve(self, request, slug=None):
         serializer = ProductSerializer(
-            Product.objects.filter(slug=slug)
+            self.queryset.filter(slug=slug)
             .select_related('category')
+            .prefetch_related(Prefetch('attribute_value__attribute'))
             .prefetch_related(Prefetch("product_line__product_image"))
             .prefetch_related(Prefetch('product_line__attribute_value__attribute')),
             many=True
         )
         data = Response(serializer.data)
 
-        # q = list(connection.queries)
-        # print(len(q))
+        q = list(connection.queries)
+        print(len(q))
         # for qs in q:
         #     sqlformatted = format(str(qs['sql']), reindent=True)
         #     print(highlight(sqlformatted, SqlLexer(), TerminalFormatter()))

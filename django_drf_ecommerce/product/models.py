@@ -176,5 +176,3 @@ class ProductTypeAttribute(models.Model):
     class Meta:
         unique_together = ('product_type', 'attribute')
 
-    # def __str__(self):
-    #     return f"{self.product_line.product}-{self.attribute_value}"

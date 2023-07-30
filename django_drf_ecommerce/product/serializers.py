@@ -59,9 +59,9 @@ class ProductLineSerializer(serializers.ModelSerializer):
 
 
 class ProductSerializer(serializers.ModelSerializer):
-    category_name = serializers.CharField(source='category.name')
+    category = serializers.CharField(source='category.name')
     product_line = ProductLineSerializer(many=True)
-    attribute = serializers.SerializerMethodField()
+    attribute_value = AttributeValueSerializer(many=True)
 
     class Meta:
         model = Product
@@ -70,9 +70,9 @@ class ProductSerializer(serializers.ModelSerializer):
             'slug',
             'pid',
             'description',
-            'category_name',
+            'category',
             'product_line',
-            'attribute'
+            'attribute_value'
         )
 
     def get_attribute(self, obj):
@@ -81,12 +81,12 @@ class ProductSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
-        av_data = data.pop('attribute')
+        av_data = data.pop('attribute_value')
 
         attr_values = {}
         for key in av_data:
-            attr_values.update({key['id']: key['name']})
-        data.update({'type_specification': attr_values})
+            attr_values.update({key['attribute']['name']: key['att_value']})
+        data.update({'attribute': attr_values})
 
         return data
 

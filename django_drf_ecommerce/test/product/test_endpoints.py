@@ -29,7 +29,7 @@ class TestProductEndpoints:
 
     def test_return_products_by_category_slug(self, category_factory, product_factory, api_client):
         obj = category_factory(slug='test-slug')
-        product_factory(category=obj)
+        product_factory.create(category=obj)
         response = api_client().get(f"{self.endpoint}category/{obj.slug}/")
         assert response.status_code == 200
         assert len(json.loads(response.content)) == 1
