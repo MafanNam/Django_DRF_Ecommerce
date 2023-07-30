@@ -4,11 +4,11 @@ from .models import Category, Product, ProductLine, ProductImage, Attribute, Att
 
 
 class CategorySerializer(serializers.ModelSerializer):
-    category_name = serializers.CharField(source='name')
+    category = serializers.CharField(source='name')
 
     class Meta:
         model = Category
-        fields = ('category_name',)
+        fields = ('category', 'slug',)
 
 
 class ProductImageSerializer(serializers.ModelSerializer):
@@ -59,32 +59,70 @@ class ProductLineSerializer(serializers.ModelSerializer):
 
 
 class ProductSerializer(serializers.ModelSerializer):
-    category_name = serializers.CharField(source='category.name')
+    category = serializers.CharField(source='category.name')
     product_line = ProductLineSerializer(many=True)
-    attribute = serializers.SerializerMethodField()
+    attribute_value = AttributeValueSerializer(many=True)
 
     class Meta:
         model = Product
         fields = (
             'name',
             'slug',
+            'pid',
             'description',
-            'category_name',
+            'category',
             'product_line',
-            'attribute'
+            'attribute_value'
         )
 
     def get_attribute(self, obj):
-        attribute = Attribute.objects.filter(product_type_attribute__product__id=obj.id)
+        attribute = Attribute.objects.filter(product_type_attribute__product_line_type__product_id=obj.id)
         return AttributeSerializer(attribute, many=True).data
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
-        av_data = data.pop('attribute')
+        av_data = data.pop('attribute_value')
 
         attr_values = {}
         for key in av_data:
-            attr_values.update({key['id']: key['name']})
-        data.update({'type_specification': attr_values})
+            attr_values.update({key['attribute']['name']: key['att_value']})
+        data.update({'attribute': attr_values})
+
+        return data
+
+
+class ProductLineCategorySerializer(serializers.ModelSerializer):
+    product_image = ProductImageSerializer(many=True)
+
+    class Meta:
+        model = ProductLine
+        fields = (
+            'price',
+            'product_image',
+        )
+
+
+class ProductCategorySerializer(serializers.ModelSerializer):
+    product_line = ProductLineCategorySerializer(many=True)
+
+    class Meta:
+        model = Product
+        fields = (
+            'name',
+            'slug',
+            'pid',
+            'created_at',
+            'product_line',
+        )
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        x = data.pop('product_line')
+
+        if x:
+            price = x[0]['price']
+            image = x[0]['product_image']
+            data.update({'price': price})
+            data.update({'image': image})
 
         return data
