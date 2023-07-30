@@ -68,6 +68,7 @@ class ProductSerializer(serializers.ModelSerializer):
         fields = (
             'name',
             'slug',
+            'pid',
             'description',
             'category_name',
             'product_line',
@@ -75,7 +76,7 @@ class ProductSerializer(serializers.ModelSerializer):
         )
 
     def get_attribute(self, obj):
-        attribute = Attribute.objects.filter(product_type_attribute__product__id=obj.id)
+        attribute = Attribute.objects.filter(product_type_attribute__product_line_type__product_id=obj.id)
         return AttributeSerializer(attribute, many=True).data
 
     def to_representation(self, instance):
@@ -86,5 +87,42 @@ class ProductSerializer(serializers.ModelSerializer):
         for key in av_data:
             attr_values.update({key['id']: key['name']})
         data.update({'type_specification': attr_values})
+
+        return data
+
+
+class ProductLineCategorySerializer(serializers.ModelSerializer):
+    product_image = ProductImageSerializer(many=True)
+
+    class Meta:
+        model = ProductLine
+        fields = (
+            'price',
+            'product_image',
+        )
+
+
+class ProductCategorySerializer(serializers.ModelSerializer):
+    product_line = ProductLineCategorySerializer(many=True)
+
+    class Meta:
+        model = Product
+        fields = (
+            'name',
+            'slug',
+            'pid',
+            'created_at',
+            'product_line',
+        )
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        x = data.pop('product_line')
+
+        if x:
+            price = x[0]['price']
+            image = x[0]['product_image']
+            data.update({'price': price})
+            data.update({'image': image})
 
         return data

@@ -11,8 +11,8 @@ from pygments.formatters import TerminalFormatter
 from pygments.lexers import SqlLexer
 from sqlparse import format
 
-from .models import Product, Category
-from .serializers import ProductSerializer, CategorySerializer
+from .models import Product, Category, ProductLine, ProductImage
+from .serializers import ProductSerializer, CategorySerializer, ProductCategorySerializer
 
 
 class CategoryViewSet(viewsets.ViewSet):
@@ -60,10 +60,14 @@ class ProductViewSet(viewsets.ViewSet):
         return Response(serializer.data)
 
     @action(methods=['GET'], detail=False, url_path=r"category/(?P<slug>[\w-]+)")
-    def list_product_by_slug(self, request, slug=None):
+    def list_product_by_category_slug(self, request, slug=None):
         """
         An endpoint to return products by category_slug
         """
 
-        serializer = ProductSerializer(self.queryset.filter(category__slug=slug), many=True)
+        serializer = ProductCategorySerializer(
+            self.queryset.filter(category__slug=slug)
+            .prefetch_related(Prefetch('product_line', queryset=ProductLine.objects.order_by('order')))
+            .prefetch_related(Prefetch('product_line__product_image', queryset=ProductImage.objects.filter(order=1))),
+            many=True)
         return Response(serializer.data)
