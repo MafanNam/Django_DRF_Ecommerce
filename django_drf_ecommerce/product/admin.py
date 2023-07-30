@@ -26,19 +26,22 @@ class ProductLineImageInLine(admin.TabularInline):
     model = ProductImage
 
 
+class AttributeValueInLine(admin.TabularInline):
+    model = AttributeValue.product_line_attribute_value.through
+
+
+class AttributeValueProductInLine(admin.TabularInline):
+    model = AttributeValue.product_attr_value.through
+
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
     list_display = ('name', 'is_digital', 'category', 'is_active', 'slug')
-    inlines = [ProductLineInLine]
+    inlines = [ProductLineInLine, AttributeValueProductInLine]
 
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
     list_field = ('name', 'parent')
-
-
-class AttributeValueInLine(admin.TabularInline):
-    model = AttributeValue.product_line_attribute_value.through
 
 
 @admin.register(ProductLine)

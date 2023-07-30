@@ -39,7 +39,7 @@ class ProductViewSet(viewsets.ViewSet):
     def retrieve(self, request, slug=None):
         serializer = ProductSerializer(
             Product.objects.filter(slug=slug)
-            .select_related('category', 'brand')
+            .select_related('category')
             .prefetch_related(Prefetch("product_line__product_image"))
             .prefetch_related(Prefetch('product_line__attribute_value__attribute')),
             many=True
