@@ -132,6 +132,22 @@ class TestProductLineModel:
         obj = product_line_factory(sku='12345')
         assert obj.__str__() == '12345'
 
+    def test_duplicate_attribute_inserts(
+            self,
+            product_line_factory,
+            attribute_factory,
+            attribute_value_factory,
+            product_line_attribute_value_factory):
+
+        obj1 = attribute_factory(name='shoe-color')
+        obj2 = attribute_value_factory(att_value='red', attribute=obj1)
+        obj3 = attribute_value_factory(att_value='blue', attribute=obj1)
+        obj4 = product_line_factory()
+        product_line_attribute_value_factory(attribute_value=obj2, product_line=obj4)
+
+        with pytest.raises(ValidationError):
+            product_line_attribute_value_factory(attribute_value=obj3, product_line=obj4)
+
     def test_duplicate_order_values(self, product_line_factory, product_factory):
         obj = product_factory()
         product_line_factory(order=1, product=obj)
@@ -201,23 +217,26 @@ class TestProductTypeModel:
             obj.full_clean()
 
 
+class TestAttributeModel:
+    def test_str_output(self, attribute_factory):
+        obj = attribute_factory(name='test_attribute')
+        assert obj.__str__() == 'test_attribute'
+
+    def test_name_field_max_length(self, attribute_factory):
+        name = 'x' * 101
+        obj = attribute_factory(name=name)
+        with pytest.raises(ValidationError):
+            obj.full_clean()
 
 
-# class TestAttributeModel:
-#     def test_str_method(self, attribute_factory):
-#         # Act
-#         obj = attribute_factory(name='test_attribute')
-#         # Assert
-#         assert obj.__str__() == 'test_attribute'
-#
-#
-# class TestAttributeValueModel:
-#     def test_str_method(self, attribute_value_factory, attribute_factory):
-#         # Act
-#         obj_a = attribute_factory(name='test_attribute')
-#         obj_b = attribute_value_factory(att_value='test_value', attribute=obj_a)
-#         # Assert
-#         assert obj_b.__str__() == 'test_attribute-test_value'
-#
-#
+class TestAttributeValueModel:
+    def test_str_output(self, attribute_value_factory, attribute_factory):
+        obj_a = attribute_factory(name='test_attribute')
+        obj_b = attribute_value_factory(att_value='test_value', attribute=obj_a)
+        assert obj_b.__str__() == 'test_attribute-test_value'
 
+    def test_value_field_max_length(self, attribute_value_factory):
+        att_value = 'x' * 101
+        obj = attribute_value_factory(att_value=att_value)
+        with pytest.raises(ValidationError):
+            obj.full_clean()

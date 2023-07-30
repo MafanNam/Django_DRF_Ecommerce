@@ -35,7 +35,11 @@ class Product(models.Model):
     is_active = models.BooleanField(default=False)
     product_type = models.ForeignKey(
         "ProductType", on_delete=models.PROTECT, related_name='product_type')
-    # product_value = models.ForeignKey("ProductLineAttributeValue", on_delete=models.PROTECT)
+    attribute_value = models.ManyToManyField(
+        "AttributeValue",
+        through="ProductAttributeValue",
+        related_name="product_attr_value"
+    )
 
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     updated_at = models.DateTimeField(auto_now=True, editable=False)
@@ -73,8 +77,8 @@ class ProductLine(models.Model):
     weight = models.FloatField()
     product_type = models.ForeignKey(
         "ProductType", on_delete=models.PROTECT, related_name='product_line_type')
-    # attribute_value = models.ManyToManyField(AttributeValue, through='ProductLineAttributeValue',
-    #                                          related_name='product_line_attribute_value')
+    attribute_value = models.ManyToManyField(AttributeValue, through='ProductLineAttributeValue',
+                                             related_name='product_line_attribute_value')
 
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     updated_at = models.DateTimeField(auto_now=True, editable=False)
@@ -93,6 +97,16 @@ class ProductLine(models.Model):
 
     def __str__(self):
         return str(self.sku)
+
+
+class ProductAttributeValue(models.Model):
+    attribute_value = models.ForeignKey(AttributeValue, on_delete=models.CASCADE,
+                                        related_name='product_value_av')
+    product = models.ForeignKey(Product, on_delete=models.CASCADE,
+                                related_name='product_value_p')
+
+    class Meta:
+        unique_together = ('attribute_value', 'product')
 
 
 class ProductLineAttributeValue(models.Model):
