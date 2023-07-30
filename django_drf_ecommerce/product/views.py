@@ -20,7 +20,7 @@ class CategoryViewSet(viewsets.ViewSet):
     A simple ViewSet for viewing all categories
     """
 
-    queryset = Category.objects.all()
+    queryset = Category.objects.all().is_active()
 
     @extend_schema(responses=CategorySerializer)
     def list(self, request):
